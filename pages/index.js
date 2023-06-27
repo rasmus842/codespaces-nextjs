@@ -1,25 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import styles from '../styles/home.module.css'
 
 const CHAR_SEQUENCE = "0123456789A BCDEFGHIJK LMNOPQRSTU VWXYZ"
 
-const isValidCrn = crn => crn.match("[0-9]{2}[A-Z]{2}[0-9A-Za-z]{14}");
-
+const isValidText = crn => crn.match("[0-9A-Z]{18}");
 
 function Home() {
-  const [crn, setCrn] = useState("23EE000000000000R9")
+  const [inputNumber, setInputNumber] = useState("23EE000044449999R0")
   const [checksum, setChecksum] = useState(null)
-  const [correctCrn, setCorrectCrn] = useState(null)
+  const [correctNumber, setCorrectNumber] = useState(null)
 
 
   const submit = (e) => {
     e.preventDefault()
-    console.log("Submitted crn: ", crn)
-    if (isValidCrn(crn)) {
+    console.log("Submitted number: ", inputNumber)
+    if (isValidText(inputNumber)) {
       calculateChecksum()
     } else {
       setChecksum(null)
-      setCorrectCrn(null)
+      setCorrectNumber(null)
     }
   }
 
@@ -28,42 +27,39 @@ function Home() {
     let sum = 0
     let mult2 = 1
     for (let i  = 0; i < CHAR_SEQUENCE.length; i++) {
-      sum += CHAR_SEQUENCE.indexOf(crn.charAt(i)) * mult2
+      sum += CHAR_SEQUENCE.indexOf(inputNumber.charAt(i)) * mult2
       mult2 = mult2 * 2
     }
 
     const result = (sum % 11) % 10
     setChecksum(result)
 
-    const newCrn = crn.substring(0, 17) + result
-    setCorrectCrn(newCrn)
+    const newNumber = inputNumber.substring(0, 17) + result
+    setCorrectNumber(newNumber)
   }
 
   return (
     <main className={styles.main}>
-      <h1>CRN viimase numbri ehk "checksum" arvutamine.</h1>
-      <p>
-        CRNi viimane number on nii-öelda kontrollnumber, mis arvutatakse algoritmi abil vastavalt sellele
-        mis esimsesed numbrid olid. Et testimine mugavam oleks siis kasuta seda rakendust et ta arvutaks sinu
-        eest kontrollnumbri.
+      <h1>Checksumi ehk kontrollnumbri aruvtamine ISO 6346 standari alusel.</h1>
+      <p>Antud rakendus arvutab sinu eest kontrollnumbri.
       </p>
       <hr className={styles.hr} />
       <div>
-        <p>Sisesta CRN:</p>
+        <p>Sisesta 18-märgiline number (lubatud on numbrid 0-9, suured tähed A-Z)</p>
         <form onSubmit={submit}>
           <div>
             <input type='text' 
-              name="crn"
-              value={crn}
-              onChange={e => setCrn(e.target.value)}/>
+              name="inputNumber"
+              value={inputNumber}
+              onChange={e => setInputNumber(e.target.value)}/>
           </div>
           <button type="submit">Arvuta kontrollnumber</button>
         </form>
       </div>
       <hr className={styles.hr} />
-      <p>Sisestatud crn: {crn}</p>
+      <p>Sisestatud: {inputNumber}</p>
       <p>Arvutatud kontrollnumber: {checksum}</p>
-      <p>Õige crn: {correctCrn}</p>
+      <p>Õige: {correctNumber}</p>
       <hr className={styles.hr} />
     </main>
   )
