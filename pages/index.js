@@ -42,7 +42,7 @@ function Home() {
 
   return (
     <main className={styles.main}>
-      <h1>Checksumi ehk kontrollnumbri aruvtamine ISO 6346 standari alusel.</h1>
+      <h1>Checksumi ehk kontrollnumbri aruvtamine ISO 6346 standardi alusel.</h1>
       <hr className={styles.hr} />
       <div>
         <p>Sisesta 18-märgiline number (lubatud on numbrid 0-9, suured tähed A-Z)</p>
