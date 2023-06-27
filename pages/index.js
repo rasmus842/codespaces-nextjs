@@ -1,68 +1,69 @@
 import { useCallback, useEffect, useState } from 'react'
-import Button from '../components/Button'
-import ClickCount from '../components/ClickCount'
 import styles from '../styles/home.module.css'
 
-function throwError() {
-  console.log(
-    // The function body() is not defined
-    document.body()
-  )
-}
+const CHAR_SEQUENCE = "0123456789A BCDEFGHIJK LMNOPQRSTU VWXYZ"
+
+const isValidCrn = crn => crn.match("[0-9]{2}[A-Z]{2}[0-9A-Za-z]{14}");
+
 
 function Home() {
-  const [count, setCount] = useState(0)
-  const increment = useCallback(() => {
-    setCount((v) => v + 1)
-  }, [setCount])
+  const [crn, setCrn] = useState("23EE000000000000R9")
+  const [checksum, setChecksum] = useState(null)
+  const [correctCrn, setCorrectCrn] = useState(null)
 
-  useEffect(() => {
-    const r = setInterval(() => {
-      increment()
-    }, 1000)
 
-    return () => {
-      clearInterval(r)
+  const submit = (e) => {
+    e.preventDefault()
+    console.log("Submitted crn: ", crn)
+    if (isValidCrn(crn)) {
+      calculateChecksum()
+    } else {
+      setChecksum(null)
+      setCorrectCrn(null)
     }
-  }, [increment])
+  }
+
+  const calculateChecksum = () => {
+    console.log("Calculating checksum...")
+    let sum = 0
+    let mult2 = 1
+    for (let i  = 0; i < CHAR_SEQUENCE.length; i++) {
+      sum += CHAR_SEQUENCE.indexOf(crn.charAt(i)) * mult2
+      mult2 = mult2 * 2
+    }
+
+    const result = (sum % 11) % 10
+    setChecksum(result)
+
+    const newCrn = crn.substring(0, 17) + result
+    setCorrectCrn(newCrn)
+  }
 
   return (
     <main className={styles.main}>
-      <h1>Fast Refresh Demo</h1>
+      <h1>CRN viimase numbri ehk "checksum" arvutamine.</h1>
       <p>
-        Fast Refresh is a Next.js feature that gives you instantaneous feedback
-        on edits made to your React components, without ever losing component
-        state.
+        CRNi viimane number on nii-öelda kontrollnumber, mis arvutatakse algoritmi abil vastavalt sellele
+        mis esimsesed numbrid olid. Et testimine mugavam oleks siis kasuta seda rakendust et ta arvutaks sinu
+        eest kontrollnumbri.
       </p>
       <hr className={styles.hr} />
       <div>
-        <p>
-          Auto incrementing value. The counter won't reset after edits or if
-          there are errors.
-        </p>
-        <p>Current value: {count}</p>
+        <p>Sisesta CRN:</p>
+        <form onSubmit={submit}>
+          <div>
+            <input type='text' 
+              name="crn"
+              value={crn}
+              onChange={e => setCrn(e.target.value)}/>
+          </div>
+          <button type="submit">Arvuta kontrollnumber</button>
+        </form>
       </div>
       <hr className={styles.hr} />
-      <div>
-        <p>Component with state.</p>
-        <ClickCount />
-      </div>
-      <hr className={styles.hr} />
-      <div>
-        <p>
-          The button below will throw 2 errors. You'll see the error overlay to
-          let you know about the errors but it won't break the page or reset
-          your state.
-        </p>
-        <Button
-          onClick={(e) => {
-            setTimeout(() => document.parentNode(), 0)
-            throwError()
-          }}
-        >
-          Throw an Error
-        </Button>
-      </div>
+      <p>Sisestatud crn: {crn}</p>
+      <p>Arvutatud kontrollnumber: {checksum}</p>
+      <p>Õige crn: {correctCrn}</p>
       <hr className={styles.hr} />
     </main>
   )
